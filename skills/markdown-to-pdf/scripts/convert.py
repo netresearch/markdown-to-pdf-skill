@@ -71,9 +71,7 @@ def convert(
 </body>
 </html>"""
 
-        HTML(string=html_doc).write_pdf(
-            target=str(dst), stylesheets=[CSS(string=css)]
-        )
+        HTML(string=html_doc).write_pdf(target=str(dst), stylesheets=[CSS(string=css)])
         size = dst.stat().st_size
         print(f"✓ converted {src_path} → {dst} ({size / 1024:.1f} KB)")
         written.append(dst)
