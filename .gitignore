@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.pdf
+build/
+dist/
+.pytest_cache/
