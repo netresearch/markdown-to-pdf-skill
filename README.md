@@ -20,6 +20,24 @@ Agent Skill following the [open standard](https://agentskills.io). Works with Cl
 composer require netresearch/markdown-to-pdf-skill
 ```
 
+### npm (Node Projects)
+
+```bash
+npm install --save-dev \
+  @netresearch/agent-skill-coordinator \
+  github:netresearch/markdown-to-pdf-skill
+```
+
+Requires [@netresearch/agent-skill-coordinator](https://github.com/netresearch/node-agent-skill-coordinator), which discovers the skill in `node_modules` and registers it in `AGENTS.md` via a `postinstall` hook. For pnpm, also allowlist the coordinator's postinstall:
+
+```json
+{
+  "pnpm": {
+    "onlyBuiltDependencies": ["@netresearch/agent-skill-coordinator"]
+  }
+}
+```
+
 ### Manual
 
 Clone and place under your agent's skills directory.
