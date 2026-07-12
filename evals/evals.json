@@ -5,7 +5,7 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "uv run[^\\n]*--with (markdown|weasyprint)",
+        "value": "uv run[^\\n]*--with markdown[^\\n]*--with weasyprint|uv run[^\\n]*--with weasyprint[^\\n]*--with markdown",
         "description": "Invokes the script via 'uv run --with markdown --with weasyprint python3 convert.py', not a bare pip install + python3 call"
       },
       {
@@ -117,7 +117,7 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "intro\\.md[^\\n]*chapter1\\.md[^\\n]*chapter2\\.md|intro\\.md.*chapter1\\.md.*chapter2\\.md",
+        "value": "(intro|chapter1|chapter2)\\.md[^\\n]*(intro|chapter1|chapter2)\\.md[^\\n]*(intro|chapter1|chapter2)\\.md",
         "description": "Passes all three input files to a single conversion call rather than three separate script invocations"
       },
       {
