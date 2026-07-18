@@ -7,7 +7,7 @@ metadata:
 
 # Markdown to PDF
 
-Convert one or more Markdown files into styled PDFs using [WeasyPrint](https://weasyprint.org/) and the Python `markdown` library. The default styling is intentionally neutral — apply your own brand stylesheet via `--css`.
+Convert one or more Markdown files into styled PDFs using [WeasyPrint](https://weasyprint.org/) and the Python `markdown` library. The default styling is neutral; apply your own brand stylesheet via `--css`.
 
 ## How to use
 
@@ -17,11 +17,11 @@ Run the conversion script via `uv run`:
 uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custom.css]
 ```
 
-`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works regardless of install path.
+`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works at any path.
 
 ## Steps
 
-1. Identify target `.md` files from the user's request. If none specified, look for `.md` files in the current directory and ask which to convert.
+1. Identify target `.md` files from the request. If none specified, look in the current directory and ask which to convert.
 2. Run the conversion:
 
    ```bash
@@ -29,30 +29,28 @@ uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.p
    ```
 
    - Use `-o <dir>` to place PDFs in a specific output directory.
-   - Use `--css <path>` to override the default neutral stylesheet (e.g., a brand stylesheet from `netresearch-branding-skill/assets/markdown-pdf.css`).
+   - Use `--css <path>` to override the default stylesheet (e.g., `netresearch-branding-skill/assets/markdown-pdf.css`).
    - Glob patterns like `*.md` are supported.
-3. Report which PDF files were created and their locations.
+3. Report which PDF files were created and where.
 
 ## Default styling
 
 The bundled `assets/style.css` provides:
 - system fonts (no external font fetches)
 - neutral grayscale headers
-- printable code blocks with monospace font
-- A4 page size with sensible margins
+- monospace code blocks
+- A4 page size, sensible margins
 - page numbers in footer
-
-For branded output, supply a `--css` value pointing at your organisation's stylesheet (logo, colours, fonts, headers).
 
 ## Companion skills
 
-- **`netresearch-branding-skill`** ships a `markdown-pdf.css` brand asset. Internal Netresearch users: install both skills, then `--css "$(echo $CLAUDE_PLUGIN_ROOT/.../netresearch-branding-skill/.../assets/markdown-pdf.css)"`.
-- That brand CSS expects two wrapper elements this script does **not** generate on its own: `.page-header` (containing an `.header-logo` image) and `.page-footer` (containing `.footer-info` / `.footer-page`). Passing `--css` alone with a branded stylesheet produces a PDF with no logo and no footer — no error, just missing brand elements. To get compliant branded output, build the HTML yourself (parse the Markdown, wrap the body in `<div class="page-header">...</div>` / `<div class="page-footer">...</div>` with the classes the target CSS expects, then call `weasyprint` directly) instead of relying on this script's `--css` flag alone. See netresearch-branding-skill's `SKILL.md` for the exact required elements.
+- **`netresearch-branding-skill`** ships a `markdown-pdf.css` brand asset. Netresearch users: install both skills, then pass `--css "$CLAUDE_PLUGIN_ROOT/.../netresearch-branding-skill/.../assets/markdown-pdf.css"`.
+- That brand CSS expects two wrapper elements this script does **not** generate: `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing `--css` with a branded stylesheet yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the `.page-header` / `.page-footer` divs the CSS expects, then call `weasyprint` directly. See netresearch-branding-skill's `SKILL.md`.
 
 ## Known pitfalls
 
-- **Bullet list right after a lead-in line, no blank line between them:** `python-markdown` (unlike CommonMark) does not start a new list unless a blank line precedes it. `Intro:\n- item` renders as literal `- item` text, not a `<ul>` — silently, with no error. Always leave a blank line between a lead-in sentence and the list that follows it.
-- **Rendering bugs like the one above raise no error and don't show in the exit code.** Before treating a conversion as done, render at least the first page to a PNG (e.g. `pymupdf`/`fitz`: `page.get_pixmap(dpi=150).save(...)`) and look at it, rather than trusting `✓ converted ... (N KB)` alone.
+- **Bullet list right after a lead-in line, no blank line between them:** `python-markdown` (unlike CommonMark) starts a list only when a blank line precedes it. `Intro:\n- item` renders as literal `- item` text, not a `<ul>` — silently. Always leave a blank line between a lead-in sentence and its list.
+- **Such rendering bugs raise no error and don't affect the exit code.** Before calling a conversion done, render the first page to a PNG (`pymupdf`/`fitz`: `page.get_pixmap(dpi=150).save(...)`) and inspect it — don't trust `✓ converted ... (N KB)` alone.
 
 ## Output format
 
