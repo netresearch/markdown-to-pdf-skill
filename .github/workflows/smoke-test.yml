@@ -1,0 +1,51 @@
+name: Smoke Test
+
+# The shared skill-repo-skill tests.yml runs tests/**/*.sh but provides no
+# Python toolchain, and this repo's only test needs uv to resolve markdown and
+# weasyprint. Called through that reusable the test would report SKIP and the
+# job would be green while measuring nothing, so the setup lives here instead.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: convert.py smoke test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install WeasyPrint system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libffi-dev
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+
+      - name: Run smoke test
+        run: |
+          bash tests/convert.sh | tee smoke.log
+          # The test skips itself when uv is missing. Here uv is installed, so a
+          # skip means the setup above failed silently -- fail instead of
+          # reporting a green run that executed nothing.
+          if grep -q '^SKIP' smoke.log; then
+            echo "::error::smoke test skipped although uv was installed"
+            exit 1
+          fi
