@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # markdown-to-pdf-skill
 
 Convert Markdown files to styled PDFs using [WeasyPrint](https://weasyprint.org/) and the Python `markdown` library. Generic, brand-neutral default; CSS-overridable for branded output.

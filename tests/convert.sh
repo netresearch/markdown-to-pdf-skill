@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
+
 # tests/convert.sh — smoke test for scripts/convert.py.
 #
 # The skill's value is an executable: whether the agent describes the right
