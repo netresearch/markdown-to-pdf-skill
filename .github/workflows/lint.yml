@@ -12,3 +12,7 @@ jobs:
   validate:
     name: Skill Validation
     uses: netresearch/skill-repo-skill/.github/workflows/validate.yml@main
+    with:
+      # tests/convert.sh is clean at ShellCheck's strictest level, which is
+      # also the level the pre-commit shellcheck hook runs at (no args).
+      shellcheck-severity: style
