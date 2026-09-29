@@ -5,15 +5,21 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "uv run[^\\n]*--with markdown[^\\n]*--with weasyprint|uv run[^\\n]*--with weasyprint[^\\n]*--with markdown",
-        "description": "Invokes the script via 'uv run --with markdown --with weasyprint python3 convert.py', not a bare pip install + python3 call"
+        "value": "uv run.*convert\\.py",
+        "description": "Invokes the script via 'uv run convert.py', which installs the dependencies declared in its inline metadata, not a bare pip install + python3 call"
       },
       {
         "type": "content_contains",
         "value": "convert.py",
         "description": "Names the bundled conversion script"
       }
-    ]
+    ],
+    "samples": {
+      "passing": "Run `uv run skills/markdown-to-pdf/scripts/convert.py README.md`; uv installs markdown and weasyprint from the script's inline metadata.",
+      "failing": [
+        "pip install markdown weasyprint, then python3 skills/markdown-to-pdf/scripts/convert.py README.md"
+      ]
+    }
   },
   {
     "name": "css-override-branding",
@@ -165,15 +171,21 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "uv run[^\\n]*--with weasyprint|uv pip install weasyprint",
-        "description": "uv's --with flags should auto-resolve WeasyPrint; the fallback is 'uv pip install', not a bare 'pip install'"
+        "value": "uv run.*convert\\.py|uv pip install weasyprint",
+        "description": "uv run reads the script's inline dependency metadata and resolves WeasyPrint; the fallback is 'uv pip install', not a bare 'pip install'"
       },
       {
         "type": "content_contains",
         "value": "uv",
         "description": "Keeps uv as the tool of record instead of switching to a plain pip/venv workflow"
       }
-    ]
+    ],
+    "samples": {
+      "passing": "Start it as `uv run convert.py file.md`: uv reads the inline dependency metadata and installs WeasyPrint.",
+      "failing": [
+        "Run pip install weasyprint and try again."
+      ]
+    }
   },
   {
     "name": "markdown-extensions-tables-fenced-code",

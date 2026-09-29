@@ -45,10 +45,11 @@ Clone and place under your agent's skills directory.
 ## Usage
 
 ```bash
-uv run --with markdown --with weasyprint python3 \
-  "${SKILL_DIR}/skills/markdown-to-pdf/scripts/convert.py" \
+uv run "${SKILL_DIR}/skills/markdown-to-pdf/scripts/convert.py" \
   README.md RFC-001.md -o build/pdfs/
 ```
+
+The Python dependencies (`markdown`, `weasyprint`) are declared as [inline script metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/) at the top of `convert.py`; `uv run` installs them. WeasyPrint also needs the Pango system libraries ([installation notes](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html)).
 
 Pass `--css path/to/your.css` to apply your own brand stylesheet (logo, colours, fonts, headers). The shipped `assets/style.css` is intentionally neutral.
 

@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "markdown>=3.4.4",
+#     "weasyprint>=68",
+# ]
+# ///
 """Convert Markdown files to styled PDFs using weasyprint + markdown.
 
 Generic, brand-neutral. For Netresearch-branded output, pass

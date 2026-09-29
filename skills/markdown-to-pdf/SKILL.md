@@ -14,10 +14,10 @@ Convert one or more Markdown files into styled PDFs using [WeasyPrint](https://w
 Run the conversion script via `uv run`:
 
 ```bash
-uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custom.css]
+uv run "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custom.css]
 ```
 
-`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works at any path.
+`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works at any path. Its dependencies (`markdown`, `weasyprint`) are declared in the inline script metadata at the top of `convert.py`; `uv run` reads that block and installs them.
 
 ## Steps
 
@@ -25,7 +25,7 @@ uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.p
 2. Run the conversion:
 
    ```bash
-   uv run --with markdown --with weasyprint python3 <skill-dir>/scripts/convert.py file1.md file2.md
+   uv run <skill-dir>/scripts/convert.py file1.md file2.md
    ```
 
    - Use `-o <dir>` to place PDFs in a specific output directory.
@@ -66,5 +66,5 @@ Per file:
 | Error | Action |
 |-------|--------|
 | No `.md` files matched | List directory contents and ask user |
-| WeasyPrint missing | `uv run` should auto-resolve it; if not, suggest `uv pip install weasyprint` |
+| WeasyPrint missing | `uv run convert.py` installs it from the script's inline metadata; if it was started as `python3 convert.py`, rerun it with `uv run` |
 | `--css` file not found | Surface the missing path; do not fall back silently |

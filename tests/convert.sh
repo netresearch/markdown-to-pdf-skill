@@ -38,7 +38,9 @@ check() { # check <name> <expected> <actual>
 }
 
 run_convert() { # run_convert <args...>
-    (cd "$WORK" && uv run --with markdown --with weasyprint python3 "$SCRIPT" "$@" 2>&1)
+    # Plain `uv run <script>`: the dependencies come from the inline metadata
+    # block in convert.py, so a missing or wrong declaration fails here.
+    (cd "$WORK" && uv run "$SCRIPT" "$@" 2>&1)
 }
 
 cat > "$WORK/sample.md" <<'EOF'
