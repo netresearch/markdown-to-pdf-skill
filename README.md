@@ -62,6 +62,10 @@ Images, stylesheets and fonts are loaded only over `https:` and `data:` URLs. A 
 
 Netresearch users: install [`netresearch-branding-skill`](https://github.com/netresearch/netresearch-branding-skill) alongside this one and pass its `assets/markdown-pdf.css` via `--css`.
 
+## Security
+
+[docs/SECURITY-ASSURANCE.md](docs/SECURITY-ASSURANCE.md) describes the trust boundaries, which resources a conversion may load, the checks that enforce this, and what you cannot expect from the converter. Report vulnerabilities as described in the organisation's [security policy](https://github.com/netresearch/.github/blob/main/SECURITY.md).
+
 ## License
 
 Code: MIT. Documentation/content: CC-BY-SA-4.0. See `LICENSE-MIT` and `LICENSE-CC-BY-SA-4.0`.
