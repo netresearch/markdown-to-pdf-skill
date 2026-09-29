@@ -31,6 +31,7 @@ uv run "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custo
    - Use `-o <dir>` to place PDFs in a specific output directory.
    - Use `--css <path>` to override the default stylesheet (e.g., `netresearch-branding-skill/assets/markdown-pdf.css`).
    - Glob patterns like `*.md` are supported.
+   - Use `--allow-scheme <scheme>` (repeatable) only when the document needs images, stylesheets or fonts over a scheme other than `https` or `data` (see below).
 3. Report which PDF files were created and where.
 
 ## Default styling
@@ -41,6 +42,10 @@ The bundled `assets/style.css` provides:
 - monospace code blocks
 - A4 page size, sensible margins
 - page numbers in footer
+
+## Remote and local resources
+
+WeasyPrint loads the images, stylesheets and fonts that the Markdown (including raw HTML in it) and the `--css` file reference. The script lets it load only `https:` and `data:` URLs. Any other scheme (`http:`, `file:`, `ftp:`) stops the conversion with `refused to load <url>` and exit code 1; no PDF is written. Pass `--allow-scheme http` or `--allow-scheme file` only for a document you trust. Relative paths such as `![logo](logo.png)` are not resolved, because the HTML has no base URL.
 
 ## Companion skills
 
@@ -68,3 +73,4 @@ Per file:
 | No `.md` files matched | List directory contents and ask user |
 | WeasyPrint missing | `uv run convert.py` installs it from the script's inline metadata; if it was started as `python3 convert.py`, rerun it with `uv run` |
 | `--css` file not found | Surface the missing path; do not fall back silently |
+| `refused to load <url>` | The document references a scheme other than `https`/`data`. Tell the user which URL; rerun with `--allow-scheme <scheme>` only if they trust the document |

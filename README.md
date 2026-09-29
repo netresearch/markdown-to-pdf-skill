@@ -53,6 +53,8 @@ The Python dependencies (`markdown`, `weasyprint`) are declared as [inline scrip
 
 Pass `--css path/to/your.css` to apply your own brand stylesheet (logo, colours, fonts, headers). The shipped `assets/style.css` is intentionally neutral.
 
+Images, stylesheets and fonts are loaded only over `https:` and `data:` URLs. A reference to any other scheme (`http:`, `file:`, `ftp:`) stops the conversion unless that scheme is allowed with `--allow-scheme <scheme>`.
+
 ## Branded output
 
 Netresearch users: install [`netresearch-branding-skill`](https://github.com/netresearch/netresearch-branding-skill) alongside this one and pass its `assets/markdown-pdf.css` via `--css`.

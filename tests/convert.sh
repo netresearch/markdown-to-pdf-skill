@@ -95,6 +95,84 @@ case "$out" in
     *) echo "  FAIL the empty match is reported: got '$out'"; fail=1 ;;
 esac
 
+# --- Resource URLs: only https and data unless --allow-scheme ----------------
+# A local HTTP server records every request, so "refused" is measured as "no
+# request arrived", not inferred from the exit code alone. /redirect answers
+# with a redirect to ftp: to check that a redirect cannot leave the allowlist.
+cat > "$WORK/server.py" <<'EOF'
+import base64, http.server, sys
+PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
+class Handler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        with open(sys.argv[2], "a") as log:
+            log.write(self.path + "\n")
+        if self.path == "/redirect":
+            self.send_response(302)
+            self.send_header("Location", "ftp://127.0.0.1/pixel.png")
+            self.end_headers()
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "image/png")
+        self.end_headers()
+        self.wfile.write(PNG)
+    def log_message(self, *args):
+        pass
+server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+with open(sys.argv[1], "w") as f:
+    f.write(str(server.server_address[1]))
+server.serve_forever()
+EOF
+: > "$WORK/requests.log"
+python3 "$WORK/server.py" "$WORK/port" "$WORK/requests.log" &
+SRV=$!
+trap 'kill "$SRV" 2>/dev/null; rm -rf "$WORK"' EXIT
+for _ in $(seq 50); do [ -s "$WORK/port" ] && break; sleep 0.1; done
+PORT="$(cat "$WORK/port")"
+BASE="http://127.0.0.1:$PORT"
+PIXEL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+base64 -d <<< "${PIXEL#data:image/png;base64,}" > "$WORK/pixel.png"
+
+refused() { # refused <name> <markdown file> <url> [extra args...]
+    local name="$1" md="$2" url="$3"
+    shift 3
+    : > "$WORK/requests.log"
+    rm -f "$WORK/${md%.md}.pdf"
+    out=$(run_convert "$md" "$@")
+    check "$name: exits non-zero" 1 "$?"
+    case "$out" in
+        *"refused to load $url"*) echo "  ok   $name: the refused URL is named" ;;
+        *) echo "  FAIL $name: the refused URL is named: got '$out'"; fail=1 ;;
+    esac
+    check "$name: no PDF is written" "no" \
+        "$([ -f "$WORK/${md%.md}.pdf" ] && echo yes || echo no)"
+}
+
+printf '# Remote\n\n<img src="%s/plain.png">\n' "$BASE" > "$WORK/http-img.md"
+refused "an http image" http-img.md "$BASE/plain.png"
+check "an http image: no request reaches the server" "" "$(cat "$WORK/requests.log")"
+
+printf '# Local\n\n<img src="file://%s/pixel.png">\n' "$WORK" > "$WORK/file-img.md"
+refused "a file: image" file-img.md "file://$WORK/pixel.png"
+
+printf '@import url("%s/imported.css");\n' "$BASE" > "$WORK/import.css"
+printf '# Styled\n' > "$WORK/styled.md"
+refused "an http @import in --css" styled.md "$BASE/imported.css" --css "$WORK/import.css"
+check "an http @import in --css: no request reaches the server" "" "$(cat "$WORK/requests.log")"
+
+printf '# Inline\n\n<img src="%s">\n' "$PIXEL" > "$WORK/data-img.md"
+out=$(run_convert data-img.md)
+check "a data: image is allowed by default" 0 "$?"
+
+: > "$WORK/requests.log"
+out=$(run_convert http-img.md --allow-scheme http)
+check "--allow-scheme http permits the http image" 0 "$?"
+check "--allow-scheme http: the request reaches the server" "/plain.png" "$(cat "$WORK/requests.log")"
+
+printf '# Redirect\n\n<img src="%s/redirect">\n' "$BASE" > "$WORK/redirect.md"
+refused "a redirect to ftp" redirect.md "ftp://127.0.0.1/pixel.png" --allow-scheme http
+
 echo ""
 if [ "$fail" -eq 0 ]; then
     echo "All convert.py smoke tests passed"

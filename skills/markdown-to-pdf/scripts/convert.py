@@ -17,19 +17,55 @@ import glob
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import markdown
 from weasyprint import CSS, HTML
+from weasyprint.urls import FatalURLFetchingError, URLFetcher
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_CSS = SKILL_DIR / "assets" / "style.css"
+
+# URL schemes WeasyPrint may load resources (images, stylesheets, fonts,
+# attachments) from without an explicit opt-in: https is encrypted and data:
+# needs no connection. Everything else -- http, ftp, file -- is refused unless
+# the caller names it with --allow-scheme.
+DEFAULT_SCHEMES = frozenset({"https", "data"})
+
+
+class SchemeRestrictedFetcher(URLFetcher):
+    """URL fetcher that refuses every scheme outside an allowlist.
+
+    The refusal raises FatalURLFetchingError, which WeasyPrint does not catch,
+    so the conversion stops instead of writing a PDF with the resource silently
+    missing. Redirects re-enter fetch() through URLFetcher.open(), so a
+    redirect to a refused scheme is refused as well.
+    """
+
+    def __init__(self, allowed_schemes: frozenset[str]) -> None:
+        super().__init__()
+        self.allowed_schemes = allowed_schemes
+
+    def fetch(self, url, headers=None):
+        scheme = urlsplit(url).scheme.lower()
+        if scheme not in self.allowed_schemes:
+            allowed = ", ".join(sorted(self.allowed_schemes))
+            raise FatalURLFetchingError(
+                f"refused to load {url}: scheme '{scheme}' is not allowed "
+                f"(allowed: {allowed}; add one with --allow-scheme)"
+            )
+        return super().fetch(url, headers)
 
 
 def convert(
     input_files: list[str],
     output_dir: str | None = None,
     css_path: str | None = None,
+    allow_schemes: list[str] | None = None,
 ) -> list[Path]:
+    fetcher = SchemeRestrictedFetcher(
+        DEFAULT_SCHEMES | {s.lower() for s in allow_schemes or []}
+    )
     css_file = Path(css_path) if css_path else DEFAULT_CSS
     if not css_file.exists():
         print(f"Error: CSS file not found: {css_file}", file=sys.stderr)
@@ -78,7 +114,14 @@ def convert(
 </body>
 </html>"""
 
-        HTML(string=html_doc).write_pdf(target=str(dst), stylesheets=[CSS(string=css)])
+        try:
+            HTML(string=html_doc, url_fetcher=fetcher).write_pdf(
+                target=str(dst),
+                stylesheets=[CSS(string=css, url_fetcher=fetcher)],
+            )
+        except FatalURLFetchingError as exc:
+            print(f"Error: {src_path}: {exc}", file=sys.stderr)
+            sys.exit(1)
         size = dst.stat().st_size
         print(f"✓ converted {src_path} → {dst} ({size / 1024:.1f} KB)")
         written.append(dst)
@@ -103,8 +146,17 @@ def main() -> None:
         "--css",
         help="Path to a custom CSS file (default: assets/style.css)",
     )
+    parser.add_argument(
+        "--allow-scheme",
+        action="append",
+        metavar="SCHEME",
+        help=(
+            "Also load resources over this URL scheme, e.g. http or file "
+            "(repeatable; https and data are always allowed)"
+        ),
+    )
     args = parser.parse_args()
-    convert(args.input_files, args.output_dir, args.css)
+    convert(args.input_files, args.output_dir, args.css, args.allow_scheme)
 
 
 if __name__ == "__main__":
