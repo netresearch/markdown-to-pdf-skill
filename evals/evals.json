@@ -123,7 +123,7 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "(intro|chapter1|chapter2)\\.md[^\\n]*(intro|chapter1|chapter2)\\.md[^\\n]*(intro|chapter1|chapter2)\\.md",
+        "value": "(intro|chapter1|chapter2)\\.md.*(intro|chapter1|chapter2)\\.md.*(intro|chapter1|chapter2)\\.md",
         "description": "Passes all three input files to a single conversion call rather than three separate script invocations"
       },
       {
@@ -131,7 +131,13 @@
         "value": "each|per file|for each file",
         "description": "Reports a per-file result, matching the script's per-file output format"
       }
-    ]
+    ],
+    "samples": {
+      "passing": "Converted intro.md, chapter1.md and chapter2.md in one run; each file got its own PDF.",
+      "failing": [
+        "Run `uv run convert.py intro.md`, then chapter1.md, then chapter2.md separately."
+      ]
+    }
   },
   {
     "name": "output-dir-auto-created",
