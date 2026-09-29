@@ -66,6 +66,12 @@ Netresearch users: install [`netresearch-branding-skill`](https://github.com/net
 
 [docs/SECURITY-ASSURANCE.md](docs/SECURITY-ASSURANCE.md) describes the trust boundaries, which resources a conversion may load, the checks that enforce this, and what you cannot expect from the converter. Report vulnerabilities as described in the organisation's [security policy](https://github.com/netresearch/.github/blob/main/SECURITY.md).
 
+## Dependencies
+
+- **Python packages**: `markdown` and `weasyprint`, declared with lower bounds in the inline script metadata of `skills/markdown-to-pdf/scripts/convert.py`. `uv run` installs them from PyPI into a cached environment; there is no lock file.
+- **System libraries**: WeasyPrint needs Pango. `.github/workflows/smoke-test.yml` installs it with `apt-get` before running `tests/convert.sh`.
+- **Tooling**: GitHub Actions (pinned by commit SHA) and pre-commit hooks (pinned by `rev`) are updated by Renovate (`renovate.json`).
+
 ## License
 
 Code: MIT. Documentation/content: CC-BY-SA-4.0. See `LICENSE-MIT` and `LICENSE-CC-BY-SA-4.0`.
