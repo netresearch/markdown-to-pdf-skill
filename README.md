@@ -72,6 +72,16 @@ Netresearch users: install [`netresearch-branding-skill`](https://github.com/net
 - **System libraries**: WeasyPrint needs Pango. `.github/workflows/smoke-test.yml` installs it with `apt-get` before running `tests/convert.sh`.
 - **Tooling**: GitHub Actions (pinned by commit SHA) and pre-commit hooks (pinned by `rev`) are updated by Renovate (`renovate.json`).
 
+## Governance and policies
+
+- [Governance](https://github.com/netresearch/.github/blob/main/GOVERNANCE.md): who decides, how changes are accepted and how disputes are resolved.
+- [Roadmap](https://github.com/netresearch/.github/blob/main/ROADMAP.md): planned and excluded work for the coming year.
+- [Handling of dependency and code analysis findings](https://github.com/netresearch/.github/blob/main/SECURITY.md#handling-of-dependency-and-code-analysis-findings): thresholds, deadlines and exceptions for vulnerability and static-analysis findings.
+- [Secret management](https://github.com/netresearch/.github/blob/main/SECURITY.md#secret-management): how CI and release credentials are stored, accessed and rotated.
+- [Access roster](https://github.com/netresearch/.github/blob/main/docs/access-roster.md): who holds admin and write access to this repository.
+
+Checks that run on every pull request here: Skill Validation (`lint.yml`: skill structure, markdownlint, yamllint, actionlint, JSON syntax, ShellCheck at `style`, ruff), Eval Validation (`eval-validate.yml`), the convert.py smoke test (`smoke-test.yml`), and CodeQL analysis of the Python and GitHub Actions code and SonarCloud, which are configured outside this repository's workflows.
+
 ## License
 
 Code: MIT. Documentation/content: CC-BY-SA-4.0. See `LICENSE-MIT` and `LICENSE-CC-BY-SA-4.0`.
