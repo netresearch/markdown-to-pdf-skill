@@ -80,7 +80,7 @@ Netresearch users: install [`netresearch-branding-skill`](https://github.com/net
 - [Secret management](https://github.com/netresearch/.github/blob/main/SECURITY.md#secret-management): how CI and release credentials are stored, accessed and rotated.
 - [Access roster](https://github.com/netresearch/.github/blob/main/docs/access-roster.md): who holds admin and write access to this repository.
 
-Checks that run on every pull request here: Skill Validation (`lint.yml`: skill structure, markdownlint, yamllint, actionlint, JSON syntax, ShellCheck at `style`, ruff), Eval Validation (`eval-validate.yml`), the convert.py smoke test (`smoke-test.yml`), and CodeQL analysis of the Python and GitHub Actions code and SonarCloud, which are configured outside this repository's workflows.
+Checks that run on every pull request here: Skill Validation (`lint.yml`: skill structure, markdownlint, yamllint, actionlint, JSON syntax, ShellCheck at `style`, ruff), Eval Validation (`eval-validate.yml`), the convert.py smoke test (`smoke-test.yml`), and CodeQL analysis of the Python and GitHub Actions code, SonarCloud and the DCO sign-off check, which are configured outside this repository's workflows. For dependency-update pull requests, auto-merge (`auto-merge-deps.yml`) also runs.
 
 ## License
 
