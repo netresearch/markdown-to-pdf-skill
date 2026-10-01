@@ -19,6 +19,7 @@ import argparse
 import glob
 import os
 import sys
+import tempfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -128,9 +129,19 @@ def convert(
 </body>
 </html>"""
 
-        # Render into a temporary file next to the target, so a refused
-        # resource leaves neither a partial PDF nor a replaced older one.
-        tmp = dst.with_name(dst.name + ".partial")
+        # Render into a temporary file of its own next to the target, so a
+        # refused resource leaves neither a partial PDF nor a replaced older
+        # one, and two runs on the same target do not share the file.
+        fd, tmp_name = tempfile.mkstemp(
+            dir=dst.parent, prefix=f".{dst.name}.", suffix=".partial"
+        )
+        os.close(fd)
+        tmp = Path(tmp_name)
+        # mkstemp creates the file 0600; give the PDF the mode a plain write
+        # would have (0666 minus the umask).
+        umask = os.umask(0)
+        os.umask(umask)
+        tmp.chmod(0o666 & ~umask)
         fetcher.refused.clear()
         try:
             HTML(string=html_doc, url_fetcher=fetcher).write_pdf(

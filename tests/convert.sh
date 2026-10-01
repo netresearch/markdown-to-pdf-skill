@@ -74,6 +74,11 @@ check "the PDF is larger than 1 KB" "yes" \
     "$([ "${size:-0}" -gt 1024 ] && echo yes || echo no)"
 check "the file really is a PDF, not an HTML error page" "%PDF" \
     "$(head -c 4 "$WORK/out/sample.pdf" 2>/dev/null)"
+touch "$WORK/out/mode-reference"
+check "the PDF gets the mode a plain write would (umask applied)" \
+    "$(stat -c %a "$WORK/out/mode-reference")" "$(stat -c %a "$WORK/out/sample.pdf" 2>/dev/null)"
+check "no temporary .partial file is left next to the PDF" "" \
+    "$(find "$WORK/out" -name '*.partial')"
 case "$out" in
     *"converted"*) echo "  ok   the run reports what it converted" ;;
     *) echo "  FAIL the run reports what it converted: got '$out'"; fail=1 ;;
