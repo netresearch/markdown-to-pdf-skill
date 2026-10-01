@@ -19,7 +19,7 @@ import argparse
 import glob
 import os
 import sys
-import tempfile
+import uuid
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -132,16 +132,9 @@ def convert(
         # Render into a temporary file of its own next to the target, so a
         # refused resource leaves neither a partial PDF nor a replaced older
         # one, and two runs on the same target do not share the file.
-        fd, tmp_name = tempfile.mkstemp(
-            dir=dst.parent, prefix=f".{dst.name}.", suffix=".partial"
-        )
-        os.close(fd)
-        tmp = Path(tmp_name)
-        # mkstemp creates the file 0600; give the PDF the mode a plain write
-        # would have (0666 minus the umask).
-        umask = os.umask(0)
-        os.umask(umask)
-        tmp.chmod(0o666 & ~umask)
+        # WeasyPrint creates it like any plain write, so the PDF gets the
+        # usual mode (0666 minus the umask).
+        tmp = dst.with_name(f".{dst.name}.{uuid.uuid4().hex}.partial")
         fetcher.refused.clear()
         try:
             HTML(string=html_doc, url_fetcher=fetcher).write_pdf(

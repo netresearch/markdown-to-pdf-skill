@@ -45,7 +45,7 @@ Flow in `convert.py`: the command-line arguments are expanded with `glob.glob`; 
 
 - **Fail-safe defaults**: the scheme allowlist is closed; only `https` and `data` are open without an opt-in.
 - **Fail loudly**: a refused URL, a missing stylesheet and an empty input match stop the run with a non-zero exit status rather than producing a PDF that looks correct.
-- **Economy of mechanism**: one script of about 200 lines, two direct dependencies, no subprocesses, no dynamic code evaluation.
+- **Economy of mechanism**: one script of about 190 lines, two direct dependencies, no subprocesses, no dynamic code evaluation.
 - **Complete mediation**: every resource load, including redirects and stylesheet imports, goes through one `fetch` method.
 
 ## Common weaknesses
