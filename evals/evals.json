@@ -177,8 +177,8 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "uv run.*convert\\.py|uv pip install weasyprint",
-        "description": "uv run reads the script's inline dependency metadata and resolves WeasyPrint; the fallback is 'uv pip install', not a bare 'pip install'"
+        "value": "uv run.*convert\\.py",
+        "description": "uv run reads the script's inline dependency metadata and resolves WeasyPrint; 'uv pip install' and a bare 'pip install' do not reach the environment uv run builds from that metadata"
       },
       {
         "type": "content_contains",
@@ -189,7 +189,8 @@
     "samples": {
       "passing": "Start it as `uv run convert.py file.md`: uv reads the inline dependency metadata and installs WeasyPrint.",
       "failing": [
-        "Run pip install weasyprint and try again."
+        "Run pip install weasyprint and try again.",
+        "Run uv pip install weasyprint and retry."
       ]
     }
   },
