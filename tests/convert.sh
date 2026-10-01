@@ -176,6 +176,12 @@ check "--allow-scheme http: the request reaches the server" "/plain.png" "$(cat 
 printf '# Redirect\n\n<img src="%s/redirect">\n' "$BASE" > "$WORK/redirect.md"
 refused "a redirect to ftp" redirect.md "ftp://127.0.0.1/pixel.png" --allow-scheme http
 
+# WeasyPrint catches errors while it draws an SVG, so a refused resource
+# inside an SVG must still fail the conversion rather than vanish.
+printf '# SVG\n\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10" height="10"><image href="%s/svg.png" width="10" height="10"/></svg>\n' "$BASE" > "$WORK/svg-img.md"
+refused "an http image inside an inline SVG" svg-img.md "$BASE/svg.png"
+check "an http image inside an inline SVG: no request reaches the server" "" "$(cat "$WORK/requests.log")"
+
 echo ""
 if [ "$fail" -eq 0 ]; then
     echo "All convert.py smoke tests passed"

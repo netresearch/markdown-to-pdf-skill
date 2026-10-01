@@ -39,24 +39,30 @@ DEFAULT_SCHEMES = frozenset({"https", "data"})
 class SchemeRestrictedFetcher(URLFetcher):
     """URL fetcher that refuses every scheme outside an allowlist.
 
-    The refusal raises FatalURLFetchingError, which WeasyPrint does not catch,
-    so the conversion stops instead of writing a PDF with the resource silently
-    missing. Redirects re-enter fetch() through URLFetcher.open(), so a
-    redirect to a refused scheme is refused as well.
+    The refusal raises FatalURLFetchingError, which stops the conversion for
+    resources of the document and its stylesheets. WeasyPrint catches errors
+    while it draws an SVG image, so a resource referenced from inside an SVG
+    would otherwise be dropped silently; every refusal is therefore also
+    recorded in `refused`, and convert() fails the file when the list is not
+    empty after rendering. Redirects re-enter fetch() through
+    URLFetcher.open(), so a redirect to a refused scheme is refused as well.
     """
 
     def __init__(self, allowed_schemes: frozenset[str]) -> None:
         super().__init__()
         self.allowed_schemes = allowed_schemes
+        self.refused: list[str] = []
 
     def fetch(self, url, headers=None):
         scheme = urlsplit(url).scheme.lower()
         if scheme not in self.allowed_schemes:
             allowed = ", ".join(sorted(self.allowed_schemes))
-            raise FatalURLFetchingError(
+            message = (
                 f"refused to load {url}: scheme '{scheme}' is not allowed "
                 f"(allowed: {allowed}; add one with --allow-scheme)"
             )
+            self.refused.append(message)
+            raise FatalURLFetchingError(message)
         return super().fetch(url, headers)
 
 
@@ -117,14 +123,24 @@ def convert(
 </body>
 </html>"""
 
+        # Render into a temporary file next to the target, so a refused
+        # resource leaves neither a partial PDF nor a replaced older one.
+        tmp = dst.with_name(dst.name + ".partial")
+        fetcher.refused.clear()
         try:
             HTML(string=html_doc, url_fetcher=fetcher).write_pdf(
-                target=str(dst),
+                target=str(tmp),
                 stylesheets=[CSS(string=css, url_fetcher=fetcher)],
             )
         except FatalURLFetchingError as exc:
+            tmp.unlink(missing_ok=True)
             print(f"Error: {src_path}: {exc}", file=sys.stderr)
             sys.exit(1)
+        if fetcher.refused:
+            tmp.unlink(missing_ok=True)
+            print(f"Error: {src_path}: {fetcher.refused[0]}", file=sys.stderr)
+            sys.exit(1)
+        tmp.replace(dst)
         size = dst.stat().st_size
         print(f"✓ converted {src_path} → {dst} ({size / 1024:.1f} KB)")
         written.append(dst)
