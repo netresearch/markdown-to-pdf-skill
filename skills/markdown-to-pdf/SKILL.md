@@ -1,4 +1,6 @@
 ---
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 name: markdown-to-pdf
 description: Use when converting one or more Markdown files into PDFs. Triggers on "convert to PDF", "make PDF", "export PDF", "markdown to PDF". Generic conversion via WeasyPrint with a neutral default stylesheet; pass `--css` to apply your own branded styling.
 metadata:
@@ -14,10 +16,10 @@ Convert one or more Markdown files into styled PDFs using [WeasyPrint](https://w
 Run the conversion script via `uv run`:
 
 ```bash
-uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custom.css]
+uv run "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custom.css]
 ```
 
-`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works at any path.
+`${SKILL_DIR}` is the directory containing this `SKILL.md`. The script resolves `assets/style.css` relative to its own location, so it works at any path. Its dependencies (`markdown`, `weasyprint`) are declared in the inline script metadata at the top of `convert.py`; `uv run` reads that block and installs them.
 
 ## Steps
 
@@ -25,12 +27,13 @@ uv run --with markdown --with weasyprint python3 "${SKILL_DIR}/scripts/convert.p
 2. Run the conversion:
 
    ```bash
-   uv run --with markdown --with weasyprint python3 <skill-dir>/scripts/convert.py file1.md file2.md
+   uv run <skill-dir>/scripts/convert.py file1.md file2.md
    ```
 
    - Use `-o <dir>` to place PDFs in a specific output directory.
    - Use `--css <path>` to override the default stylesheet (e.g., `netresearch-branding-skill/assets/markdown-pdf.css`).
    - Glob patterns like `*.md` are supported.
+   - Use `--allow-scheme <scheme>` (repeatable) only when the document needs images, stylesheets or fonts over a scheme other than `https` or `data` (see below).
 3. Report which PDF files were created and where.
 
 ## Default styling
@@ -41,6 +44,10 @@ The bundled `assets/style.css` provides:
 - monospace code blocks
 - A4 page size, sensible margins
 - page numbers in footer
+
+## Remote and local resources
+
+WeasyPrint loads the images, stylesheets and fonts that the Markdown (including raw HTML in it) and the `--css` file reference. The script lets it load only `https:` and `data:` URLs. Any other scheme (`http:`, `file:`, `ftp:`) stops the conversion with `refused to load <url>` and exit code 1; no PDF is written. Pass `--allow-scheme http` or `--allow-scheme file` only for a document you trust. Relative paths such as `![logo](logo.png)` are not resolved, because the HTML has no base URL.
 
 ## Companion skills
 
@@ -66,5 +73,6 @@ Per file:
 | Error | Action |
 |-------|--------|
 | No `.md` files matched | List directory contents and ask user |
-| WeasyPrint missing | `uv run` should auto-resolve it; if not, suggest `uv pip install weasyprint` |
+| WeasyPrint missing | `uv run convert.py` installs it from the script's inline metadata; if it was started as `python3 convert.py`, rerun it with `uv run` |
 | `--css` file not found | Surface the missing path; do not fall back silently |
+| `refused to load <url>` | The document references a scheme other than `https`/`data`. Tell the user which URL; rerun with `--allow-scheme <scheme>` only if they trust the document |
