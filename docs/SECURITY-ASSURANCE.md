@@ -35,7 +35,7 @@ Flow in `convert.py`: the command-line arguments are expanded with `glob.glob`; 
 | Requirement | How it is met | Evidence |
 | --- | --- | --- |
 | A document cannot make the converter use an unencrypted or local transport | `SchemeRestrictedFetcher.fetch` accepts only `https:` and `data:` URLs (`DEFAULT_SCHEMES`). Any other scheme (`http:`, `ftp:`, `file:`) raises `FatalURLFetchingError`. The same fetcher is passed to `HTML()` and to `CSS()`, so the `--css` stylesheet is covered too | `convert.py`; `tests/convert.sh` checks that an `http:` image, a `file:` image and an `http:` `@import` in `--css` are refused and that no request reaches the local test server |
-| A redirect cannot leave the allowed schemes | WeasyPrint's `URLFetcher.open`, which the redirect handler calls, passes every redirect target back through `fetch` | `tests/convert.sh` ("a redirect to ftp" is refused) |
+| A redirect cannot leave the allowed schemes | WeasyPrint's `URLFetcher.open`, which the redirect handler calls, passes every redirect target back through `fetch`; a refusal also drops the redirect request WeasyPrint parks for the next fetch | `tests/convert.sh` ("a redirect to ftp" is refused; inside an SVG, the refused target is never contacted) |
 | A refused resource is not dropped silently | The fetcher raises `FatalURLFetchingError` and records the refusal. For the document and its stylesheets WeasyPrint lets the error through; inside an SVG image it catches it, so `convert.py` also checks the recorded refusals after rendering. Either way it prints `refused to load <url>` to stderr, exits with status 1 and writes no PDF (it renders into a temporary file and moves it into place only on success) | `tests/convert.sh` checks exit code, message and the absence of the PDF, including for an image inside an inline SVG |
 | Relaxing the rule is an explicit operator decision | `--allow-scheme <scheme>` adds a scheme for one run; there is no configuration file or environment variable that changes the default | `convert.py` `main()`; `tests/convert.sh` ("--allow-scheme http permits the http image") |
 | Relative paths do not reach the file system | The HTML is passed as a string without a base URL, so WeasyPrint does not resolve relative references such as `![logo](logo.png)` | `convert.py` (`HTML(string=..., url_fetcher=...)` without `base_url`) |
@@ -45,7 +45,7 @@ Flow in `convert.py`: the command-line arguments are expanded with `glob.glob`; 
 
 - **Fail-safe defaults**: the scheme allowlist is closed; only `https` and `data` are open without an opt-in.
 - **Fail loudly**: a refused URL, a missing stylesheet and an empty input match stop the run with a non-zero exit status rather than producing a PDF that looks correct.
-- **Economy of mechanism**: one script of about 180 lines, two direct dependencies, no subprocesses, no dynamic code evaluation.
+- **Economy of mechanism**: one script of about 190 lines, two direct dependencies, no subprocesses, no dynamic code evaluation.
 - **Complete mediation**: every resource load, including redirects and stylesheet imports, goes through one `fetch` method.
 
 ## Common weaknesses

@@ -116,6 +116,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Location", "ftp://127.0.0.1/pixel.png")
             self.end_headers()
             return
+        if self.path.startswith("/redirect-to/"):
+            self.send_response(302)
+            self.send_header("Location", self.path[len("/redirect-to/"):])
+            self.end_headers()
+            return
         self.send_response(200)
         self.send_header("Content-Type", "image/png")
         self.end_headers()
@@ -181,6 +186,32 @@ refused "a redirect to ftp" redirect.md "ftp://127.0.0.1/pixel.png" --allow-sche
 printf '# SVG\n\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10" height="10"><image href="%s/svg.png" width="10" height="10"/></svg>\n' "$BASE" > "$WORK/svg-img.md"
 refused "an http image inside an inline SVG" svg-img.md "$BASE/svg.png"
 check "an http image inside an inline SVG: no request reaches the server" "" "$(cat "$WORK/requests.log")"
+
+# A refused redirect target must not be sent by the next fetch. Inside an SVG
+# WeasyPrint swallows the refusal and goes on to the next image; a listener on
+# the refused target's port records any connection.
+cat > "$WORK/listener.py" <<'EOF'
+import socket, sys
+s = socket.socket()
+s.bind(("127.0.0.1", 0))
+s.listen(5)
+with open(sys.argv[1], "w") as f:
+    f.write(str(s.getsockname()[1]))
+while True:
+    conn, _ = s.accept()
+    with open(sys.argv[2], "a") as log:
+        log.write("connect\n")
+    conn.close()
+EOF
+: > "$WORK/listener.log"
+python3 "$WORK/listener.py" "$WORK/lport" "$WORK/listener.log" &
+LSN=$!
+trap 'kill "$SRV" "$LSN" 2>/dev/null; rm -rf "$WORK"' EXIT
+for _ in $(seq 50); do [ -s "$WORK/lport" ] && break; sleep 0.1; done
+FTP_URL="ftp://127.0.0.1:$(cat "$WORK/lport")/pixel.png"
+printf '# SVG redirect\n\n<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><image href="%s/redirect-to/%s" width="10" height="10"/></svg>\n\n<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><image href="%s" width="10" height="10"/></svg>\n' "$BASE" "$FTP_URL" "$PIXEL" > "$WORK/svg-redirect.md"
+refused "a redirect to ftp inside an SVG" svg-redirect.md "$FTP_URL" --allow-scheme http
+check "a redirect to ftp inside an SVG: the refused target is never contacted" "" "$(cat "$WORK/listener.log")"
 
 echo ""
 if [ "$fail" -eq 0 ]; then

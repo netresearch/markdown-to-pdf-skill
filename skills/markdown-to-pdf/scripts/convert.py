@@ -62,6 +62,11 @@ class SchemeRestrictedFetcher(URLFetcher):
                 f"(allowed: {allowed}; add one with --allow-scheme)"
             )
             self.refused.append(message)
+            # URLFetcher.open() parks a redirect's request in _request and
+            # fetch() sends a parked request instead of the URL it is given.
+            # Drop it, or the next allowed fetch would send the refused one
+            # (WeasyPrint catches the refusal while drawing an SVG and goes on).
+            self._request = None
             raise FatalURLFetchingError(message)
         return super().fetch(url, headers)
 
