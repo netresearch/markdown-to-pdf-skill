@@ -31,10 +31,9 @@ composer.json, package.json distribution metadata (Composer, npm)
 
 - Licensing is split: code, configuration and workflows are MIT ([LICENSE-MIT](LICENSE-MIT)); documentation and skill content are CC-BY-SA-4.0 ([LICENSE-CC-BY-SA-4.0](LICENSE-CC-BY-SA-4.0)).
 - Keep `plugin.json` and `.claude-plugin/plugin.json` in step; Skill Validation fails when the shared fields differ.
-- A change to `SKILL.md` that changes an answer the skill gives comes with a case in `evals/evals.json`.
 - `convert.py` loads images, stylesheets and fonts only over `https:` and `data:` URLs; see [docs/SECURITY-ASSURANCE.md](docs/SECURITY-ASSURANCE.md) before changing that.
-- Workflow files under `.github/workflows/` are governed by the `skill` template of `netresearch/.github`; `.github/template.yaml` lists the intentional exceptions.
-- Commits are Conventional Commits with a DCO sign-off and a signature.
+- The workflow files that also exist in the `skill` template of `netresearch/.github` are governed by it; `.github/template.yaml` lists the intentional exceptions (`lint.yml`, `release.yml`). `smoke-test.yml` is not a template file.
+- Every commit needs a `Signed-off-by` trailer (`git commit -s`) and a signature; branch protection on `main` requires signed commits and the DCO check.
 
 ## References
 
