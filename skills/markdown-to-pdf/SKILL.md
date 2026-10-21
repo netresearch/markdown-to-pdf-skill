@@ -4,7 +4,7 @@
 name: markdown-to-pdf
 description: Use when converting one or more Markdown files into PDFs. Triggers on "convert to PDF", "make PDF", "export PDF", "markdown to PDF". Generic conversion via WeasyPrint with a neutral default stylesheet; pass `--css` to apply your own branded styling.
 metadata:
-  version: "1.4.2"
+  version: "2.0.0"
 ---
 
 # Markdown to PDF
