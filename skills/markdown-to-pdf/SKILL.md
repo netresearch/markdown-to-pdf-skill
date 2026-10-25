@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Netresearch DTT GmbH
 name: markdown-to-pdf
 description: Use when converting one or more Markdown files into PDFs. Triggers on "convert to PDF", "make PDF", "export PDF", "markdown to PDF". Generic conversion via WeasyPrint with a neutral default stylesheet; pass `--css` to apply your own branded styling.
+compatibility: "Requires uv (runs the scripts on Python 3.11 or later) and the Pango system libraries that WeasyPrint needs."
 metadata:
   version: "2.0.0"
 ---
