@@ -9,6 +9,8 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   release:
     uses: netresearch/skill-repo-skill/.github/workflows/release.yml@main
