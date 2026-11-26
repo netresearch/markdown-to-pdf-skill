@@ -115,7 +115,11 @@
         "value": "--css",
         "description": "Applies the brand stylesheet via the --css flag"
       }
-    ]
+    ],
+    "samples": {
+      "passing": "Use a brand stylesheet instead of the neutral default: pass it with --css brand/markdown-pdf.css.",
+      "failing": ["The default styling is fine for an internal report."]
+    }
   },
   {
     "name": "multiple-files-per-file-report",
