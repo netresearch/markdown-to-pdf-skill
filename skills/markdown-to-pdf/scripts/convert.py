@@ -11,8 +11,7 @@
 # ///
 """Convert Markdown files to styled PDFs using weasyprint + markdown.
 
-Generic, brand-neutral. For Netresearch-branded output, pass
-`--css path/to/netresearch-branding-skill/assets/markdown-pdf.css`.
+Generic, brand-neutral. For branded output, pass `--css path/to/brand.css`.
 """
 
 import argparse

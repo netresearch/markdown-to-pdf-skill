@@ -102,20 +102,32 @@
     ]
   },
   {
-    "name": "companion-branding-skill",
+    "name": "branded-stylesheet",
     "prompt": "We're producing an internal Netresearch report as a PDF — should we use the default styling, or is there something more appropriate?",
     "assertions": [
       {
-        "type": "content_contains",
-        "value": "netresearch-branding",
-        "description": "Knows about the companion netresearch-branding-skill, which ships a matching brand stylesheet"
+        "type": "content_regex",
+        "value": "brand(ed)?[- ]?(style ?sheet|css)|(style ?sheet|css)[^.]*brand",
+        "description": "Recommends a brand stylesheet over the neutral default styling"
+      },
+      {
+        "type": "must_not",
+        "value": "(do not|don't|no need to|not) (use|pass|apply)[^.]*brand",
+        "description": "Does not advise against a brand stylesheet"
       },
       {
         "type": "content_contains",
         "value": "--css",
         "description": "Applies the brand stylesheet via the --css flag"
       }
-    ]
+    ],
+    "samples": {
+      "passing": "Use a brand stylesheet instead of the neutral default: pass it with --css brand/markdown-pdf.css.",
+      "failing": [
+        "The default styling is fine for an internal report.",
+        "Do not use a brand stylesheet; pass --css assets/style.css."
+      ]
+    }
   },
   {
     "name": "multiple-files-per-file-report",

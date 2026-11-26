@@ -60,7 +60,7 @@ Images, stylesheets and fonts are loaded only over `https:` and `data:` URLs. A 
 
 ## Branded output
 
-Netresearch users: install [`netresearch-branding-skill`](https://github.com/netresearch/netresearch-branding-skill) alongside this one and pass its `assets/markdown-pdf.css` via `--css`.
+Pass your own brand stylesheet via `--css`.
 
 ## Security
 
