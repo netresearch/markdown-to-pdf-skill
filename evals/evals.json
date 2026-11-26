@@ -102,13 +102,13 @@
     ]
   },
   {
-    "name": "companion-branding-skill",
+    "name": "branded-stylesheet",
     "prompt": "We're producing an internal Netresearch report as a PDF — should we use the default styling, or is there something more appropriate?",
     "assertions": [
       {
-        "type": "content_contains",
-        "value": "netresearch-branding",
-        "description": "Knows about the companion netresearch-branding-skill, which ships a matching brand stylesheet"
+        "type": "content_regex",
+        "value": "([Bb]rand|[Cc]orporate)[^.]*([Ss]tylesheet|CSS|css)",
+        "description": "Recommends a brand stylesheet over the neutral default styling"
       },
       {
         "type": "content_contains",

@@ -32,7 +32,7 @@ uv run "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custo
    ```
 
    - Use `-o <dir>` to place PDFs in a specific output directory.
-   - Use `--css <path>` to override the default stylesheet (e.g., `netresearch-branding-skill/assets/markdown-pdf.css`).
+   - Use `--css <path>` to override the default stylesheet (e.g., `brand/markdown-pdf.css`).
    - Glob patterns like `*.md` are supported.
    - Use `--allow-scheme <scheme>` (repeatable) only when the document needs images, stylesheets or fonts over a scheme other than `https` or `data` (see below).
 3. Report which PDF files were created and where.
@@ -50,10 +50,9 @@ The bundled `assets/style.css` provides:
 
 WeasyPrint loads the images, stylesheets and fonts that the Markdown (including raw HTML in it) and the `--css` file reference. The script lets it load only `https:` and `data:` URLs. Any other scheme (`http:`, `file:`, `ftp:`) stops the conversion with `refused to load <url>` and exit code 1; no PDF is written. Pass `--allow-scheme http` or `--allow-scheme file` only for a document you trust. Relative paths such as `![logo](logo.png)` are not resolved, because the HTML has no base URL.
 
-## Companion skills
+## Branded stylesheets
 
-- **`netresearch-branding-skill`** ships a `markdown-pdf.css` brand asset. Netresearch users: install both skills, then pass `--css "$CLAUDE_PLUGIN_ROOT/.../netresearch-branding-skill/.../assets/markdown-pdf.css"`.
-- That brand CSS expects two wrapper elements this script does **not** generate: `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing `--css` with a branded stylesheet yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the `.page-header` / `.page-footer` divs the CSS expects, then call `weasyprint` directly. See netresearch-branding-skill's `SKILL.md`.
+- A brand stylesheet may style wrapper elements this script does **not** generate, such as `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing such a stylesheet via `--css` yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the wrapper divs the CSS expects, then call `weasyprint` directly.
 
 ## Known pitfalls
 
