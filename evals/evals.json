@@ -107,8 +107,13 @@
     "assertions": [
       {
         "type": "content_regex",
-        "value": "([Bb]rand|[Cc]orporate)[^.]*([Ss]tylesheet|CSS|css)",
+        "value": "brand(ed)?[- ]?(style ?sheet|css)|(style ?sheet|css)[^.]*brand",
         "description": "Recommends a brand stylesheet over the neutral default styling"
+      },
+      {
+        "type": "must_not",
+        "value": "(do not|don't|no need to|not) (use|pass|apply)[^.]*brand",
+        "description": "Does not advise against a brand stylesheet"
       },
       {
         "type": "content_contains",
@@ -118,7 +123,10 @@
     ],
     "samples": {
       "passing": "Use a brand stylesheet instead of the neutral default: pass it with --css brand/markdown-pdf.css.",
-      "failing": ["The default styling is fine for an internal report."]
+      "failing": [
+        "The default styling is fine for an internal report.",
+        "Do not use a brand stylesheet; pass --css assets/style.css."
+      ]
     }
   },
   {

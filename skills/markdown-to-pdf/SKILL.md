@@ -52,7 +52,7 @@ WeasyPrint loads the images, stylesheets and fonts that the Markdown (including 
 
 ## Branded stylesheets
 
-- A brand stylesheet may style wrapper elements this script does **not** generate, such as `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing such a stylesheet via `--css` yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the wrapper divs the CSS expects, then call `weasyprint` directly.
+- A brand stylesheet may style wrapper elements this script does **not** generate, such as `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing such a stylesheet via `--css` yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the wrapper divs the CSS expects, then call `weasyprint` directly. Called directly, WeasyPrint loads resources over any scheme, including `file:` and `http:`, so use that path only for documents you trust.
 
 ## Known pitfalls
 
