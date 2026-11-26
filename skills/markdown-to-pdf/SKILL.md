@@ -32,7 +32,7 @@ uv run "${SKILL_DIR}/scripts/convert.py" <files...> [-o output_dir] [--css custo
    ```
 
    - Use `-o <dir>` to place PDFs in a specific output directory.
-   - Use `--css <path>` to override the default stylesheet (e.g., `brand/markdown-pdf.css`).
+   - Use `--css <path>` to override the default stylesheet, e.g. with a stylesheet from the organisation's branding skill or style guide.
    - Glob patterns like `*.md` are supported.
    - Use `--allow-scheme <scheme>` (repeatable) only when the document needs images, stylesheets or fonts over a scheme other than `https` or `data` (see below).
 3. Report which PDF files were created and where.
@@ -52,7 +52,9 @@ WeasyPrint loads the images, stylesheets and fonts that the Markdown (including 
 
 ## Branded stylesheets
 
-- A brand stylesheet may style wrapper elements this script does **not** generate, such as `.page-header` (with an `.header-logo` image) and `.page-footer` (with `.footer-info` / `.footer-page`). Passing such a stylesheet via `--css` yields a PDF with no logo and no footer — no error, just missing brand elements. For compliant output, build the HTML yourself: wrap the body in the wrapper divs the CSS expects, then call `weasyprint` directly. Called directly, WeasyPrint loads resources over any scheme, including `file:` and `http:`, so use that path only for documents you trust.
+Use the organisation's branding (a stylesheet from a branding skill, a style guide or design tokens the project provides) when one is available; otherwise keep the neutral default.
+
+- A stylesheet written for another HTML structure may style wrapper elements this script does **not** generate, such as a page header with a logo or a running page footer. Passing such a stylesheet via `--css` yields a PDF without them — no error, just missing elements. For complete output, build the HTML yourself: wrap the body in the wrapper divs the CSS expects, then call `weasyprint` directly. Called directly, WeasyPrint loads resources over any scheme, including `file:` and `http:`, so use that path only for documents you trust.
 
 ## Known pitfalls
 

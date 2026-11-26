@@ -103,7 +103,7 @@
   },
   {
     "name": "branded-stylesheet",
-    "prompt": "We're producing an internal Netresearch report as a PDF — should we use the default styling, or is there something more appropriate?",
+    "prompt": "We're producing an internal company report as a PDF, and our branding skill ships a PDF stylesheet — should we use the default styling, or is there something more appropriate?",
     "assertions": [
       {
         "type": "content_regex",
@@ -122,7 +122,7 @@
       }
     ],
     "samples": {
-      "passing": "Use a brand stylesheet instead of the neutral default: pass it with --css brand/markdown-pdf.css.",
+      "passing": "Use a brand stylesheet instead of the neutral default: pass it with --css path/to/brand.css.",
       "failing": [
         "The default styling is fine for an internal report.",
         "Do not use a brand stylesheet; pass --css assets/style.css."
